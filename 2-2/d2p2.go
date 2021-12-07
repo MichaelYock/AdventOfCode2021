@@ -41,5 +41,6 @@ func main() {
 			y += (aim * distance)
 		}
 	}
+	input.Close()
 	fmt.Println(x * y)
 }

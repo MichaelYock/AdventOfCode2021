@@ -48,6 +48,7 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
+	input.Close()
 
 	fmt.Println(epsilonInt * gammaInt)
 }
