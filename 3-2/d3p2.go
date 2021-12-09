@@ -14,89 +14,42 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-
+	defer input.Close()
 	scanner := bufio.NewScanner(input)
-
-	var data [][]byte
-	var ogr []byte
-	var cor []byte
-
+	var ogrData []string
 	for scanner.Scan() {
-		data = append(data, scanner.Bytes())
+		ogrData = append(ogrData, scanner.Text())
 	}
-	wd := data
+	corData := append([]string{}, ogrData...)
 
-	for i, _ := range data[0] {
-		if len(wd) != 0 {
-			wd = mostCommon(wd, i, true)
-			ogr = append(ogr, wd[0][i])
-		}
-
-	}
-
-	wd = data
-	for i, _ := range data[0] {
-		if len(wd) != 0 {
-			wd = mostCommon(wd, i, false)
-			cor = append(cor, wd[0][i])
-		}
-	}
-
-	ogrInt, err := strconv.ParseInt(string(ogr), 2, 64)
+	ogr, err := strconv.ParseInt(findCommon(ogrData, 0, true), 2, 64)
 	if err != nil {
 		log.Fatal(err)
 	}
-
-	corInt, err := strconv.ParseInt(string(cor), 2, 64)
+	cor, err := strconv.ParseInt(findCommon(corData, 0, false), 2, 64)
 	if err != nil {
 		log.Fatal(err)
 	}
 
 	fmt.Println(ogr, cor)
-	fmt.Println(ogrInt, corInt)
-	fmt.Println(ogrInt * corInt)
+	fmt.Println(ogr * cor)
 }
 
-func mostCommon(workingData [][]byte, targetIndex int, largest bool) [][]byte {
-	ones := 0
-	zeros := 0
-	var targetNum byte
-	var result [][]byte
-
-	for _, val := range workingData {
-		if val[targetIndex] == 48 {
-			zeros++
-		} else {
-			ones++
-		}
+func findCommon(data []string, targetIndex int, mostLeast bool) string {
+	if len(data) == 1 {
+		return data[0]
 	}
 
-	if largest {
-		if ones >= zeros {
-			targetNum = 49
+	var ones, zeros []string
+	for _, val := range data {
+		if rune(val[targetIndex]) == '0' {
+			zeros = append(zeros, val)
 		} else {
-			targetNum = 48
-		}
-	} else {
-		if zeros > ones {
-			targetNum = 49
-		} else {
-			targetNum = 48
-		}
-		if zeros < 1 {
-			targetNum = 49
-		}
-		if ones < 1 {
-			targetNum = 48
+			ones = append(ones, val)
 		}
 	}
-
-	for _, val := range workingData {
-		if val[targetIndex] == targetNum {
-			result = append(result, val)
-		}
+	if len(ones) >= len(zeros) == mostLeast {
+		return findCommon(ones, targetIndex+1, mostLeast)
 	}
-	return result
+	return findCommon(zeros, targetIndex+1, mostLeast)
 }
-
-// 1912335
