@@ -58,38 +58,45 @@ func main() {
 }
 
 func mostCommon(workingData [][]byte, targetIndex int, largest bool) [][]byte {
-	var ones [][]byte
-	var zeros [][]byte
+	ones := 0
+	zeros := 0
+	var targetNum byte
+	var result [][]byte
 
 	for _, val := range workingData {
 		if val[targetIndex] == 48 {
-			zeros = append(zeros, val)
+			zeros++
 		} else {
-			ones = append(ones, val)
+			ones++
 		}
 	}
-	fmt.Println("ones:", len(ones), "zeros:", len(zeros))
+
 	if largest {
-		if len(zeros) == len(ones) {
-			return ones
-		}
-		if len(zeros) > len(ones) {
-			return zeros
+		if ones >= zeros {
+			targetNum = 49
 		} else {
-			return ones
+			targetNum = 48
 		}
 	} else {
-		if len(zeros) == len(ones) {
-			return zeros
-		}
-		if len(ones) > len(zeros) && len(zeros) != 0 {
-			return zeros
-		} else if len(ones) != 0 {
-			return ones
+		if zeros > ones {
+			targetNum = 49
 		} else {
-			return zeros
+			targetNum = 48
+		}
+		if zeros < 1 {
+			targetNum = 49
+		}
+		if ones < 1 {
+			targetNum = 48
 		}
 	}
+
+	for _, val := range workingData {
+		if val[targetIndex] == targetNum {
+			result = append(result, val)
+		}
+	}
+	return result
 }
 
 // 1912335
