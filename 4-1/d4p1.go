@@ -12,9 +12,10 @@ import (
 func main() {
 	boards, draw := setUpBoards()
 
-	winTurn, board := checkBoards(boards, draw)
+	winTurn, board, drawn := checkBoards(boards, draw)
+	finalScore := calcScore(board, drawn)
 
-	fmt.Println(winTurn, board)
+	fmt.Println("Turn:", winTurn, ", Board:", board, " Final Draw:", draw[winTurn-1], " Score:", finalScore*draw[winTurn-1])
 }
 
 func setUpBoards() ([][][]int, []int) {
@@ -58,18 +59,18 @@ func setUpBoards() ([][][]int, []int) {
 	return boards, draw
 }
 
-func checkBoards(boards [][][]int, draw []int) (int, int) {
+func checkBoards(boards [][][]int, draw []int) (int, [][]int, []int) {
 	var drawn []int
-	for i, board := range boards {
-		for _, num := range draw {
-			drawn = append(drawn, num)
+
+	for _, num := range draw {
+		drawn = append(drawn, num)
+		for _, board := range boards {
 			if checkBoardWins(board, drawn) {
-				return len(drawn), i
+				return len(drawn), board, drawn
 			}
-			break
 		}
 	}
-	return 0, 0
+	return 0, nil, nil
 }
 
 func checkBoardWins(board [][]int, drawn []int) bool {
@@ -77,14 +78,12 @@ func checkBoardWins(board [][]int, drawn []int) bool {
 	for r := 0; r < 5; r++ {
 		marked := 0
 		for c := 0; c < 5; c++ {
-			for _, val := range drawn {
-				if board[r][c] == val {
-					marked++
-				}
+			if contains(drawn, board[r][c]) {
+				marked++
 			}
 		}
-
 		if marked > 4 {
+
 			return true
 		}
 	}
@@ -93,13 +92,32 @@ func checkBoardWins(board [][]int, drawn []int) bool {
 	for c := 0; c < 5; c++ {
 		marked := 0
 		for r := 0; r < 5; r++ {
-			for _, val := range drawn {
-				if board[r][c] == val {
-					marked++
-				}
+			if contains(drawn, board[r][c]) {
+				marked++
 			}
 		}
 		if marked > 4 {
+			return true
+		}
+	}
+	return false
+}
+
+func calcScore(board [][]int, drawn []int) int {
+	score := 0
+	for r := 0; r < 5; r++ {
+		for c := 0; c < 5; c++ {
+			if !contains(drawn, board[r][c]) {
+				score += board[r][c]
+			}
+		}
+	}
+	return score
+}
+
+func contains(arr []int, b int) bool {
+	for _, val := range arr {
+		if b == val {
 			return true
 		}
 	}
